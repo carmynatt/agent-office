@@ -18,6 +18,14 @@ function hash(s: string): number {
   return h >>> 0;
 }
 
+/**
+ * The look the character screen opens on: short dark-brown hair, a medium skin tone.
+ * The shirt beside it is the blue in `AVATAR_COLORS`. No hat, no costume.
+ */
+export function plainLook(): Look {
+  return { skin: 2, hair: 1, style: 0 };
+}
+
 /** A look picked from a seed, for people who haven't chosen one. */
 export function lookFromSeed(seed: string): Look {
   const h = hash(seed);
