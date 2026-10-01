@@ -24,6 +24,22 @@ export function grokbotWebhook(env: NodeJS.ProcessEnv): string | undefined {
   return url;
 }
 
+/**
+ * Sender key for the GrokBot webhook, sent as `Authorization: Bearer`.
+ * `GROKBOT_WEBHOOK_SECRET` wins when both it and `GROKBOT_WEBHOOK_TOKEN` are set.
+ */
+export function grokbotWebhookSecret(env: NodeJS.ProcessEnv): string | undefined {
+  const secret = env.GROKBOT_WEBHOOK_SECRET?.trim() || env.GROKBOT_WEBHOOK_TOKEN?.trim();
+  return secret || undefined;
+}
+
+function webhookHeaders(env: NodeJS.ProcessEnv): Record<string, string> {
+  const headers: Record<string, string> = { 'content-type': 'application/json' };
+  const secret = grokbotWebhookSecret(env);
+  if (secret) headers.authorization = `Bearer ${secret}`;
+  return headers;
+}
+
 export class NoteQueue {
   readonly notes: OfficeNote[] = [];
 
@@ -83,7 +99,7 @@ export class NoteQueue {
     try {
       const res = await this.fetchImpl(url, {
         method: 'POST',
-        headers: { 'content-type': 'application/json' },
+        headers: webhookHeaders(this.env),
         body: JSON.stringify({ format: 'OFFICE_NOTE', text: formatOfficeNote(note), note }),
         signal: AbortSignal.timeout(8000),
       });

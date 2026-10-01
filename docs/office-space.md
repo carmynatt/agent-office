@@ -45,4 +45,6 @@ EOF
 
 When `GROKBOT_WEBHOOK_URL` is set, the office also POSTs the note there as JSON (`format`, `text`, `note`). When it is unset, the note is appended to `<office home>/.office-space/notes.jsonl` and shown on Troy's board (north wall, past the merge gong) and under **📝 Notes** on `/lite`. A Notion URL in that variable is ignored: this process does not call Notion. A failed webhook still leaves the note in the local queue.
 
+If the webhook wants a sender key, set `GROKBOT_WEBHOOK_SECRET` or `GROKBOT_WEBHOOK_TOKEN`. The office sends it as `Authorization: Bearer <key>`. When both are set, `GROKBOT_WEBHOOK_SECRET` is the one that goes out. Leave them unset and the POST is the JSON body only.
+
 Troy wears `#8D99AE` and stands beside the board. Press **E** there, or open the command palette and choose **Troy's notes**.

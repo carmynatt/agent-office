@@ -56,4 +56,4 @@ agent-office accounts [list | invite [name] [--admin] | revoke <name> | role <na
 
 ## Office Space
 
-`GROKBOT_WEBHOOK_URL` is where `OFFICE_NOTE` requests are posted for Troy (GrokBot). Leave it unset and the office appends them to `<home>/.office-space/notes.jsonl` and shows them on Troy's board. A Notion URL is ignored: this process does not call Notion. See [Office Space](office-space.md) and `.env.example`.
+`GROKBOT_WEBHOOK_URL` is where `OFFICE_NOTE` requests are posted for Troy (GrokBot). Leave it unset and the office appends them to `<home>/.office-space/notes.jsonl` and shows them on Troy's board. A Notion URL is ignored: this process does not call Notion. `GROKBOT_WEBHOOK_SECRET` (or `GROKBOT_WEBHOOK_TOKEN`) is sent on that POST as `Authorization: Bearer`, when one is set. See [Office Space](office-space.md) and `.env.example`.

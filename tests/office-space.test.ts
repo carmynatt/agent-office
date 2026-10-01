@@ -4,7 +4,7 @@ import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { commandNames, configuredProvider, workerCommand } from '../src/server/agents.js';
-import { NoteQueue, grokbotWebhook, notesFile } from '../src/server/office-space/queue.js';
+import { NoteQueue, grokbotWebhook, grokbotWebhookSecret, notesFile } from '../src/server/office-space/queue.js';
 import { formatOfficeNote, isNotionUrl, parseOfficeNote } from '../src/shared/office-space.js';
 import { TROY_COLOR, wardrobeColor } from '../src/shared/providers.js';
 import { buildRequest, handleMcp, parseArgs } from '../bin/office-notes.js';
@@ -108,6 +108,7 @@ test('GROKBOT_WEBHOOK_URL forwards the note, and a Notion URL is not called', as
     { GROKBOT_WEBHOOK_URL: 'https://grokbot.example/hook' },
     async (url, init) => {
       seen.push(url, init.body);
+      assert.equal(init.headers.authorization, undefined);
       return { ok: true, status: 202 };
     },
     () => {},
@@ -118,6 +119,41 @@ test('GROKBOT_WEBHOOK_URL forwards the note, and a Notion URL is not called', as
   assert.match(seen[1], /OFFICE_NOTE/);
   assert.doesNotMatch(seen[1], /notion/i);
   assert.equal(queue.state().webhook, true);
+  rmSync(dir, { recursive: true, force: true });
+});
+
+test('GROKBOT_WEBHOOK_SECRET is sent as Authorization: Bearer, and a Notion URL is still not called', async () => {
+  assert.equal(grokbotWebhookSecret({}), undefined);
+  assert.equal(grokbotWebhookSecret({ GROKBOT_WEBHOOK_TOKEN: ' tok ' }), 'tok');
+  assert.equal(grokbotWebhookSecret({ GROKBOT_WEBHOOK_SECRET: 'sec', GROKBOT_WEBHOOK_TOKEN: 'tok' }), 'sec');
+  const dir = mkdtempSync(path.join(tmpdir(), 'office-notes-'));
+  const seen: { url: string; authorization?: string; body: string }[] = [];
+  const queue = new NoteQueue(
+    notesFile(path.join(dir, '.agent-office')),
+    { GROKBOT_WEBHOOK_URL: 'https://grokbot.example/hook', GROKBOT_WEBHOOK_TOKEN: 'desk-key' },
+    async (url, init) => {
+      seen.push({ url, authorization: init.headers.authorization, body: init.body });
+      return { ok: true, status: 200 };
+    },
+    () => {},
+  );
+  const result = await queue.submit(LORE);
+  assert.ok(!('error' in result) && result.note.delivery === 'forwarded');
+  assert.equal(seen[0].authorization, 'Bearer desk-key');
+  assert.doesNotMatch(seen[0].body, /desk-key/);
+  let notionCalls = 0;
+  const held = new NoteQueue(
+    notesFile(path.join(dir, 'held', '.agent-office')),
+    { GROKBOT_WEBHOOK_URL: 'https://api.notion.com/v1/pages', GROKBOT_WEBHOOK_SECRET: 'sec' },
+    async () => {
+      notionCalls += 1;
+      return { ok: true, status: 200 };
+    },
+    () => {},
+  );
+  const queued = await held.submit(LORE);
+  assert.ok(!('error' in queued) && queued.note.delivery === 'queued');
+  assert.equal(notionCalls, 0);
   rmSync(dir, { recursive: true, force: true });
 });
 
