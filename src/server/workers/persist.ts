@@ -1,8 +1,8 @@
 // workers.json: every worker as the office last saw it, to pick them all back up after a restart.
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import type { AgentProvider, WorkerInfo, WorkerStatus, WorkerTask } from '../../shared/protocol.js';
-import { DESK_BY_ID } from '../../shared/layout.js';
-import { isAgentProvider, savedEffort, savedModel } from '../../shared/providers.js';
+import { DESK_BY_ID, STATION_AGENT } from '../../shared/layout.js';
+import { isAgentProvider, savedEffort, savedModel, wardrobeColor } from '../../shared/providers.js';
 import { providerAdapter } from '../providers/index.js';
 import { reportedUsage } from '../reported-usage.js';
 import { restoreTracker, trackerUsage } from '../usage.js';
@@ -79,7 +79,7 @@ export function restoreWorkers(file: string, workers: Map<string, Worker>, defau
         effort: savedEffort(provider, s.effort),
         deskId: s.deskId,
         name: s.name ?? 'Worker',
-        color: s.color ?? COLORS[0],
+        color: dressed(s.kind === 'shell' ? 'shell' : 'agent', provider, s.deskId, s.color),
         status: 'offline',
         acked: true,
         createdBy: s.createdBy ?? '?',
@@ -117,6 +117,12 @@ export function restoreWorkers(file: string, workers: Map<string, Worker>, defau
   } catch {
     // corrupt state file: start fresh
   }
+}
+
+/** Claude, Codex and Cursor wear their wardrobe; a board agent keeps its own color; anyone else keeps what was saved. */
+function dressed(kind: 'agent' | 'shell', provider: AgentProvider | undefined, deskId: string, saved: unknown): string {
+  const station = DESK_BY_ID.get(deskId)?.station;
+  return wardrobeColor(kind, provider, station ? STATION_AGENT[station].color : undefined) ?? (typeof saved === 'string' ? saved : COLORS[0]);
 }
 
 function validTask(t: unknown): WorkerTask | undefined {

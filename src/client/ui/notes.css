@@ -1,0 +1,18 @@
+.modal.notes { width: min(640px, 100%); }
+.modal.notes header { align-items: flex-start; }
+.modal.notes header h2 { margin: 0; }
+.modal.notes .note-status { margin: 4px 0 0; font-size: 13px; font-weight: 700; color: var(--muted); }
+.notes-list { display: flex; flex-direction: column; gap: 10px; }
+.notes-empty { margin: 8px 0; font-weight: 800; color: var(--muted); }
+.note-card {
+  padding: 10px 12px;
+  border: 3px solid var(--ink);
+  border-radius: var(--radius);
+  background: #fffaf3;
+  box-shadow: 0 3px 0 var(--ink);
+}
+.note-card header { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: center; margin-bottom: 6px; background: none; border: 0; padding: 0; }
+.note-card h3 { margin: 0; font-size: 15px; flex: 1; min-width: 8em; }
+.note-chip { display: inline-block; padding: 1px 8px; border-radius: 999px; border: 2px solid var(--ink); font-size: 11px; font-weight: 900; color: #1d1d1d; }
+.note-card p { margin: 0; font-weight: 700; }
+.note-card .note-meta { margin-top: 6px; font-size: 12px; font-weight: 700; color: var(--muted); }

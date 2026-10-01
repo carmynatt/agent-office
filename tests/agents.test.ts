@@ -22,6 +22,10 @@ test('detects the configured provider from Unix and Windows command paths', () =
   assert.equal(configuredProvider('C:\\Users\\me\\AppData\\Roaming\\npm\\pi.cmd'), 'pi');
   assert.equal(configuredProvider('/usr/local/bin/pi'), 'pi');
   assert.equal(configuredProvider('my-agent'), 'custom');
+  assert.equal(configuredProvider('cursor-agent'), 'cursor');
+  assert.equal(configuredProvider('/usr/local/bin/agent'), 'cursor');
+  assert.equal(configuredProvider('CURSOR-AGENT.CMD'), 'cursor');
+  assert.equal(configuredProvider('cursor'), 'cursor');
 });
 
 test('dsh is a provider the wire accepts, and the others still are', () => {

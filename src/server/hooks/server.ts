@@ -7,11 +7,17 @@ import type { Ctx } from '../office/context.js';
 import { readBody, send } from '../http/util.js';
 import { officeQueue } from './office-queue.js';
 import { officeWorkers } from './office-workers.js';
+import { officeNotes } from './notes.js';
+import { openNoteQueue, type NoteQueue } from '../office-space/queue.js';
 import { providerHook } from '../providers/index.js';
 import type { AgentProvider } from '../../shared/providers.js';
 
 /** Starts the hook server, and says which port it listens on. */
 export async function startHookServer(ctx: Ctx): Promise<{ hookServer: http.Server; hookPort: number }> {
+  let queue: NoteQueue;
+  queue = openNoteQueue(ctx.cfg.dataDir, process.env, (url, init) => fetch(url, init), () => {
+    ctx.broadcast({ t: 'notes', state: queue.state() });
+  });
   const hookServer = http.createServer(async (req, res) => {
     let url: URL;
     try {
@@ -21,6 +27,7 @@ export async function startHookServer(ctx: Ctx): Promise<{ hookServer: http.Serv
     }
     if (url.pathname === '/office/queue') return officeQueue(ctx, req, res, url);
     if (url.pathname === '/office/workers' || url.pathname.startsWith('/office/workers/')) return officeWorkers(ctx, req, res, url);
+    if (url.pathname === '/hooks/notes') return officeNotes(ctx, req, res, url);
     // Each provider with hooks has its route, /hooks/<provider> (see providers/).
     const route = url.pathname.startsWith('/hooks/') ? url.pathname.slice('/hooks/'.length) : '';
     const hook = providerHook(route);

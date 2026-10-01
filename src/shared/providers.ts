@@ -4,7 +4,7 @@
 //
 // Browser-safe: no node imports, the hire dialog reads this too.
 
-export const AGENT_PROVIDERS = ['claude', 'opencode', 'codex', 'grok', 'muse', 'dsh', 'pi', 'custom'] as const;
+export const AGENT_PROVIDERS = ['claude', 'opencode', 'codex', 'cursor', 'grok', 'muse', 'dsh', 'pi', 'custom'] as const;
 
 export type AgentProvider = (typeof AGENT_PROVIDERS)[number];
 
@@ -83,6 +83,13 @@ export interface ProviderMeta {
   name: string;
   /** The executable it runs as: an office started with `--agent <bin>` runs it (see server/agents.ts). None for a custom --agent. */
   bin?: string;
+  /**
+   * Command names to try, in order, when this isn't the office's `--agent`. Cursor tries `cursor-agent`,
+   * then `agent`. Defaults to `bin`.
+   */
+  commands?: readonly string[];
+  /** Other basenames that select this provider (`cursor` as well as `cursor-agent` and `agent`). */
+  aliases?: readonly string[];
   /** Takes a model picked for each worker: which ids (they end up on its command line, so they're checked). */
   validModel?: (value: unknown) => value is string;
   /** What asking for a model `validModel` turns down says. */
@@ -132,6 +139,14 @@ export const PROVIDER_META: Record<AgentProvider, ProviderMeta> = {
       waiting: 'waiting for first report',
       note: 'Review Office hooks in /hooks to enable tracking. Codex reports root-session tokens; subagents are excluded and cost is unavailable.',
     },
+  },
+  cursor: {
+    label: 'Cursor',
+    name: 'Cursor',
+    bin: 'cursor-agent',
+    commands: ['cursor-agent', 'agent'],
+    aliases: ['cursor'],
+    usage: { note: 'Cursor spend is not metered by the office; the worker terminal has the session.' },
   },
   grok: {
     label: 'Grok',
@@ -199,6 +214,26 @@ export function savedModel(provider: unknown, model: unknown): string | undefine
 /** A saved reasoning effort, when `provider` takes one. */
 export function savedEffort(provider: unknown, effort: unknown): AgentEffort | undefined {
   return takesEffort(provider) && isAgentEffort(effort) ? effort : undefined;
+}
+
+/** Office Space wardrobe: Claude and Codex wear the same orange; Cursor wears purple. */
+export const PROVIDER_WARDROBE: Partial<Record<AgentProvider, string>> = {
+  claude: '#FF8A5B',
+  codex: '#FF8A5B',
+  cursor: '#7C6AF7',
+};
+
+/** GrokBot / Troy. Shell workers already wear this gray. */
+export const TROY_COLOR = '#8D99AE';
+
+/**
+ * The shirt a new worker wears. A board agent's own color wins. Claude, Codex and Cursor are fixed.
+ * Anyone else returns undefined so the desk keeps a random color, as it always has.
+ */
+export function wardrobeColor(kind: 'agent' | 'shell', provider: AgentProvider | undefined, stationColor?: string): string | undefined {
+  if (stationColor) return stationColor;
+  if (kind === 'shell') return TROY_COLOR;
+  return provider ? PROVIDER_WARDROBE[provider] : undefined;
 }
 
 /** "a, b or c": the names of the providers that `has` holds for, in the table's order. */
