@@ -8,8 +8,39 @@ import { AGENT_PROVIDERS, PROVIDER_META, isAgentEffort, providerMeta, providerNa
  * its executable too.
  */
 export function configuredProvider(command: string): AgentProvider {
-  const base = path.basename(command.replaceAll('\\', '/')).toLowerCase().replace(/\.(?:exe|cmd|bat|com)$/, '');
-  return AGENT_PROVIDERS.find((p) => PROVIDER_META[p].bin === base) ?? 'custom';
+  const base = commandBase(command);
+  return AGENT_PROVIDERS.find((p) => selectNames(p).includes(base)) ?? 'custom';
+}
+
+/** Basenames that mean this provider: its bin, the commands it launches, and any alias (`cursor`). */
+function selectNames(provider: AgentProvider): string[] {
+  const meta = PROVIDER_META[provider];
+  return [meta.bin, ...(meta.commands ?? []), ...(meta.aliases ?? [])].filter((n): n is string => !!n);
+}
+
+/** The executables to try for `provider`, in order. Cursor is `cursor-agent`, then `agent`. */
+export function commandNames(provider: AgentProvider): readonly string[] {
+  const meta = PROVIDER_META[provider];
+  if (meta.commands?.length) return meta.commands;
+  return meta.bin ? [meta.bin] : [provider];
+}
+
+/**
+ * The command line name a worker runs. The office's own `--agent` is used as given when it is this
+ * provider (or it actually exists). Otherwise the first of the provider's command names that exists
+ * wins, so Cursor finds `cursor-agent` before `agent`.
+ */
+export function workerCommand(provider: AgentProvider | undefined, defaultProvider: AgentProvider, agentCmd: string, resolve: (cmd: string) => string | null): string {
+  const names = provider ? commandNames(provider) : [];
+  if (!provider || provider === defaultProvider) {
+    const base = commandBase(agentCmd);
+    if (!provider || names.includes(base) || names.length === 0 || resolve(agentCmd)) return agentCmd;
+  }
+  return names.find((b) => resolve(b)) ?? names[0] ?? agentCmd;
+}
+
+function commandBase(command: string): string {
+  return path.basename(command.replaceAll('\\', '/')).toLowerCase().replace(/\.(?:exe|cmd|bat|com)$/, '');
 }
 
 /** The providers an office started with `configured` can hire: the ones it knows, and a custom --agent only when that's what it was started with. */

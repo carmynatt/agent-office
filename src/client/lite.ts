@@ -19,6 +19,7 @@ import { lostWorktreeDialog, openPrompt, routeWorktreeMessage, sendHomeDialog } 
 import { openBoard } from './ui/boards';
 import type { BoardActions } from './ui/github/prompts';
 import { openPull, routePullMessage } from './ui/pull';
+import { openNotes } from './ui/notes';
 import { openQueue } from './ui/queue';
 import { openAsk } from './ui/ask';
 import { openMeeting, type MeetingPreset } from './ui/meeting';
@@ -319,6 +320,7 @@ function showMeeting(preset?: MeetingPreset) {
 $('btn-issues').addEventListener('click', () => openBoard('issues', net, boardActions()));
 $('btn-pulls').addEventListener('click', () => openBoard('pulls', net, boardActions()));
 $('btn-queue').addEventListener('click', () => openQueue(net, { openTerminal: openWorker }));
+$('btn-notes').addEventListener('click', () => openNotes());
 $('btn-new').addEventListener('click', () => sendToWorker('✨ New task'));
 
 function renderNav() {
@@ -326,10 +328,12 @@ function renderNav() {
   count('btn-issues', store.issues.items.filter((i) => i.state === 'OPEN').length);
   count('btn-pulls', store.pulls.items.filter((p) => p.state === 'OPEN').length);
   count('btn-queue', store.queue.tasks.filter((t) => t.status !== 'done').length);
+  count('btn-notes', store.notes?.notes.length ?? 0);
 }
 store.on('issues', renderNav);
 store.on('pulls', renderNav);
 store.on('queue', renderNav);
+store.on('notes', renderNav);
 
 // ---- What you have open, for the others (see PeerInfo.doing) -----------------------------------
 let doingSent: string | undefined;

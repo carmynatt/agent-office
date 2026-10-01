@@ -21,6 +21,7 @@ import { signinsHandlers } from './signins.js';
 import { teamHandlers } from './team.js';
 import { usageHandlers } from './usage.js';
 import { whiteboardHandlers, whiteboardHooks, whiteboardView } from './whiteboard.js';
+import { notesView } from './notes.js';
 import { jailView, workerHandlers, workerHooks, workersView } from './workers.js';
 import type { FeatureHooks, HandlerMap, ViewPieces } from './types.js';
 
@@ -73,4 +74,5 @@ export const views: ViewPieces = {
   whiteboard: whiteboardView,
   meeting: meetingView,
   cabinet: cabinetView,
+  notes: notesView,
 };
