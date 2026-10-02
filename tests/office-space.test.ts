@@ -6,6 +6,8 @@ import path from 'node:path';
 import { commandNames, configuredProvider, workerCommand } from '../src/server/agents.js';
 import { NoteQueue, grokbotWebhook, grokbotWebhookSecret, notesFile } from '../src/server/office-space/queue.js';
 import { formatOfficeNote, isNotionUrl, parseOfficeNote } from '../src/shared/office-space.js';
+import { plainLook } from '../src/shared/avatar.js';
+import { keepOfficePlayerPlain } from '../src/client/features/office-player/index.js';
 import { TROY_COLOR, wardrobeColor } from '../src/shared/providers.js';
 import { buildRequest, handleMcp, parseArgs } from '../bin/office-notes.js';
 
@@ -20,6 +22,20 @@ tags: office, infra
 source_agent: cursor-desk-1
 summary: Each hired worker gets its own git worktree.
 `;
+
+test('the player starts as a plain office person and ignores a holiday costume', () => {
+  assert.deepEqual(plainLook(), { skin: 2, hair: 1, style: 0 });
+  const worn: (string | null)[] = [];
+  const avatar = {
+    setCostume(theme: 'halloween' | 'christmas' | null) {
+      worn.push(theme);
+    },
+  };
+  keepOfficePlayerPlain(avatar);
+  avatar.setCostume('halloween');
+  avatar.setCostume('christmas');
+  assert.deepEqual(worn, [null, null]);
+});
 
 test('wardrobe colors are the provider shirts, and other providers stay unset', () => {
   assert.equal(wardrobeColor('agent', 'claude'), '#FF8A5B');

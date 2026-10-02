@@ -6,7 +6,7 @@
 
 import { Net } from './net';
 import { AVATAR_COLORS, loadProfile, loadSettings, saveProfile, store } from './state';
-import { randomLook } from '../shared/avatar';
+import { plainLook } from '../shared/avatar';
 import { cloneLabel } from '../shared/floors';
 import { ROOF } from '../shared/rooftop';
 import { DESK_BY_ID, nextFreeSeat } from '../shared/layout';
@@ -40,7 +40,7 @@ if (new URLSearchParams(location.search).get('why') === 'webgl') {
 // Your name and color from the 3D office, if this browser has been in it. Nobody sees a character
 // of yours from here, so a look is only made up to connect with.
 const saved = loadProfile();
-store.profile = { name: saved?.name ?? 'Guest', color: saved?.color ?? AVATAR_COLORS[1], look: saved?.look ?? randomLook() };
+store.profile = { name: saved?.name ?? 'Guest', color: saved?.color ?? AVATAR_COLORS[1], look: saved?.look ?? plainLook() };
 const net = new Net(() => store.profile, () => null, true);
 const settings = loadSettings();
 const notifier = new DesktopNotifier(() => settings.notify, (id) => openWorker(id));

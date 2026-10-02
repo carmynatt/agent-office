@@ -2,7 +2,11 @@
 
 Back to the [README](../README.md).
 
-Office Space sits on this fork of Agent Office. The floor, desks, hire dialog, terminals, camera and `/lite` view are the ones you already have. What changed is who sits at a desk, what color they wear, and where notes go.
+Office Space sits on this fork of Agent Office. The floor, desks, hire dialog, terminals, camera and `/lite` view are the ones you already have. What changed is who sits at a desk, what color they wear, where notes go, and that you yourself stay a plain office person.
+
+## You
+
+The character screen opens on a plain look: short dark-brown hair, a medium skin tone, and the blue shirt. October still dresses the building for Halloween (workers, the dog, the pumpkins), and worker shirts stay the colors in the table below, but your character and your hands do not wear the pointy hat or the warlock costume. **⚙️ → Your character** starts from that same look. 🎲 Surprise me still picks another.
 
 ## Clothing
 
