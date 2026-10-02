@@ -50,7 +50,7 @@ This fork keeps that office and adds three things. Details are in [docs/office-s
 
 - **Wardrobe.** Claude Code and Codex wear `#FF8A5B`. Cursor wears `#7C6AF7`. Troy, the GrokBot middleman on the north wall, wears `#8D99AE`.
 - **Cursor desks.** Hire **Cursor** next to Claude Code and Codex. The office runs `cursor-agent`, then `agent`. Existing `claude` and `codex` commands are unchanged.
-- **Notes for Troy.** Workers send `OFFICE_NOTE` with `office-notes` or `POST /hooks/notes`. They do not call Notion. With `GROKBOT_WEBHOOK_URL` unset, notes queue in `.office-space/notes.jsonl` and show on Troy's board and under **📝 Notes** on `/lite`.
+- **Notes for Troy.** Workers send `OFFICE_NOTE` with `office-notes` or `POST /hooks/notes`. They do not call Notion. With `GROKBOT_WEBHOOK_URL` unset, notes queue in `.office-space/notes.jsonl` and show on Troy's board and under **📝 Notes** on `/lite`. On a successful note, that worker gets up and pins it on the board.
 
 ## Requirements
 

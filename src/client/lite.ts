@@ -75,6 +75,9 @@ net.onMessage((msg) => {
     case 'toast':
       toast(msg.text, msg.level);
       break;
+    case 'note.stamp':
+      if (msg.floorId === store.floor) toast(`📌 ${store.workers.get(msg.workerId)?.name ?? 'A worker'} pinned a note for Troy`);
+      break;
     case 'signins.needed':
       openSignIns(net, msg.why);
       break;

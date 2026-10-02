@@ -76,7 +76,11 @@ export class NoteQueue {
     return { notes: this.notes, webhook: !!grokbotWebhook(this.env) };
   }
 
-  async submit(raw: unknown, sourceFallback?: string): Promise<{ note: OfficeNote } | { error: string }> {
+  /**
+   * Accepts a note. `notify: false` skips the board broadcast so the caller can send the stamp
+   * trip first (see POST /hooks/notes). A parse error never notifies.
+   */
+  async submit(raw: unknown, sourceFallback?: string, opts?: { notify?: boolean }): Promise<{ note: OfficeNote } | { error: string }> {
     const parsed = parseOfficeNote(raw, sourceFallback);
     if ('error' in parsed) return parsed;
     const delivery = await this.forward(parsed.note);
@@ -89,7 +93,7 @@ export class NoteQueue {
     } catch {
       // the board still has it for this run
     }
-    this.onChange();
+    if (opts?.notify !== false) this.onChange();
     return { note };
   }
 

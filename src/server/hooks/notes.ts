@@ -22,8 +22,11 @@ export async function officeNotes(ctx: Ctx, req: http.IncomingMessage, res: http
   } catch {
     return send(res, 400, { error: 'Send OFFICE_NOTE text or JSON' });
   }
-  const result = await queue.submit(raw, agent.name);
+  const result = await queue.submit(raw, agent.name, { notify: false });
   if ('error' in result) return send(res, 400, { error: result.error });
+  // The trip first, then the board, so the cork waits until they pin it.
+  ctx.broadcast({ t: 'note.stamp', workerId, floorId: floor.id, noteId: result.note.id });
+  ctx.broadcast({ t: 'notes', state: queue.state() });
   const webhook = process.env.GROKBOT_WEBHOOK_URL?.trim();
   const held = webhook && isNotionUrl(webhook) ? 'Notion URLs are not called from this office; the note is queued for Troy' : undefined;
   send(res, 200, { ok: true, delivery: result.note.delivery, ...(held ? { held } : {}), note: result.note });
