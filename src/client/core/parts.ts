@@ -33,6 +33,7 @@ import type { installGallery, installHanging } from '../features/hanging';
 import type { installHud } from '../features/hud';
 import type { installJukebox } from '../features/jukebox';
 import type { installMeeting } from '../features/meeting';
+import type { installNotes } from '../features/notes';
 import type { installPeers } from '../features/peers';
 import type { installRooftop } from '../features/rooftop';
 import type { installSeating } from '../features/seating';
@@ -112,6 +113,7 @@ export interface Parts {
   actions: Made<typeof installWorkerActions>;
   waiting: Made<typeof installWaiting>;
   meeting: Made<typeof installMeeting>;
+  notes: Made<typeof installNotes>;
   bookshelf: Made<typeof installBookshelf>;
   bar: Made<typeof installBar>;
   coffee: Made<typeof installCoffee>;

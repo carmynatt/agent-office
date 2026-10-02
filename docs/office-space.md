@@ -48,3 +48,7 @@ When `GROKBOT_WEBHOOK_URL` is set, the office also POSTs the note there as JSON 
 If the webhook wants a sender key, set `GROKBOT_WEBHOOK_SECRET` or `GROKBOT_WEBHOOK_TOKEN`. The office sends it as `Authorization: Bearer <key>`. When both are set, `GROKBOT_WEBHOOK_SECRET` is the one that goes out. Leave them unset and the POST is the JSON body only.
 
 Troy wears `#8D99AE` and stands beside the board. Press **E** there, or open the command palette and choose **Troy's notes**.
+
+When a note is accepted (queued locally, or forwarded to the webhook), that worker gets up, walks to the board, and pins it. The sheet shows on the cork as the pin lands, then they walk back and sit. Two notes close together go one after another. A rejected token never starts the walk. On `/lite` the same moment is a short “pinned a note” line.
+
+To see it: start the office, hire a worker, and from that worker's terminal run `office-notes` with an `OFFICE_NOTE`. Watch the north wall.

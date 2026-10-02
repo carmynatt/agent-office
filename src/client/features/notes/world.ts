@@ -9,8 +9,9 @@ import { PALETTE } from '../../world/office/materials';
 import { wallBoard } from '../../world/office/props';
 import { textPlane } from '../../world/toon';
 import type { Collider, Interactable } from '../../world/types';
+import { NOTES_BOARD } from './stand';
 
-const BOARD = { x: 15.15, y: 2.05, z: FLOOR.minZ + 0.08, width: 2.2, height: 1.7 };
+const BOARD = NOTES_BOARD;
 
 declare module '../../world/types' {
   interface OfficeHandles {

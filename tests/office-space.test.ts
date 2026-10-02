@@ -157,6 +157,25 @@ test('GROKBOT_WEBHOOK_SECRET is sent as Authorization: Bearer, and a Notion URL 
   rmSync(dir, { recursive: true, force: true });
 });
 
+test('a note can be filed without the board broadcast, so the stamp trip can go out first', async () => {
+  const dir = mkdtempSync(path.join(tmpdir(), 'office-notes-'));
+  let broadcasts = 0;
+  const queue = new NoteQueue(notesFile(path.join(dir, '.agent-office')), {}, async () => ({ ok: true, status: 200 }), () => {
+    broadcasts += 1;
+  });
+  const held = await queue.submit(LORE, 'Ada', { notify: false });
+  assert.ok(!('error' in held) && held.note.delivery === 'queued');
+  assert.equal(broadcasts, 0);
+  assert.equal(queue.state().notes.length, 1);
+  const shown = await queue.submit(LORE, 'Ada');
+  assert.ok(!('error' in shown));
+  assert.equal(broadcasts, 1);
+  const bad = await queue.submit({ action: 'create', target: 'notes', provider: 'Cursor', summary: 'x' }, 'Ada', { notify: false });
+  assert.ok('error' in bad);
+  assert.equal(broadcasts, 1);
+  rmSync(dir, { recursive: true, force: true });
+});
+
 test('office-notes posts to /hooks/notes and speaks one MCP tool', async () => {
   const req = buildRequest({ url: 'http://127.0.0.1:9', worker: 'w1', token: 'tok' }, LORE);
   assert.equal(req.url, 'http://127.0.0.1:9/hooks/notes?worker=w1');
